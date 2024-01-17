@@ -13,10 +13,10 @@ And run `mvn clean package`, copy generated files in target directory.
 </dependency>
 ```
 
-## Run
+## Run TPCDS
 Only one parameter: the database name
 ```bash
-/opt/bmr/spark-3.2.0/bin/spark-submit  \
+spark-submit  \
  --master yarn \
  --deploy-mode cluster \
  --num-executors 72 \
@@ -38,3 +38,11 @@ Only one parameter: the database name
   ./pure-tpcds-test-1.0-SNAPSHOT.jar tpcds_sf1_withdecimal_withdate_withnulls
 ```
 
+## Run Specified SQl File
+```bash
+/opt/bmr/spark-3.2.0/bin/spark-submit  \
+ --master local \
+ --class org.houzhizhen.tpcds.ExecuteSqlFile \
+  ./pure-tpcds-test-1.0-SNAPSHOT.jar \
+  -f hdfs://bmr-cluster/houzhizhen/test/test.sql
+```
