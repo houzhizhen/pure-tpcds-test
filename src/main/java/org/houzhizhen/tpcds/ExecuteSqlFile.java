@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ExecuteSqlFile {
     public static void main(String[] args) throws IOException {
@@ -28,17 +26,18 @@ public class ExecuteSqlFile {
                 .builder()
                 .appName("Execute Sql File")
                 .getOrCreate();
-        int i = 0;
         try {
-
-            String[] sqls = getContents(new Path(fileName));
-            for (; i < sqls.length; ++i) {
+            String[] sqls = getSqls(new Path(fileName));
+            for (int i = 0; i < sqls.length; ++i) {
                 String sql = sqls[i];
-                System.out.println("begin execute " + sql);
+                if (sql.trim().length() < 6) { // must has 'select'
+                    continue;
+                }
+                System.out.println("begin execute sql: " + sql);
                 long start = System.currentTimeMillis();
                 spark.sql(sql).show(100);
                 long time = System.currentTimeMillis() - start;
-                System.out.println(sql + " cost time: " + time);
+                System.out.println("end execute sql:" + sql + " cost time: " + time);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -46,8 +45,8 @@ public class ExecuteSqlFile {
             spark.stop();
         }
     }
-    public static String[] getContents(Path path) throws IOException {
-        List<String> contents = new ArrayList();
+    public static String[] getSqls(Path path) throws IOException {
+        // Can not close fs, because the fs may be used by other part
         FileSystem fs = FileSystem.get(path.toUri(), new org.apache.hadoop.conf.Configuration());
 
         InputStream in = fs.open(path);
